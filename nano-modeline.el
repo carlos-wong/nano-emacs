@@ -26,6 +26,37 @@
 (require 'subr-x)
 ;; (require 'all-the-icons)
 
+
+(defun carlos/mode-line-tomato-clock-mode ()
+  ;; (message "debug clocking stat is:%s" (not  (and  (boundp 'org-clock-start-time) (org-clocking-p))))
+  ;; (message "idle time is:%s" (/  (float-time (time-subtract (current-time) carlos/tomato-idle-start-time)) 60.0))
+  (if (not  (and  (boundp 'org-clock-start-time) (org-clocking-p) ))
+      (progn
+        (if (not (equal carlos/tomato-start-time nil))
+            (if (and (equal carlos/tomato-start-time nil) (equal carlos/tomato-idle-start-time nil))
+                (propertize (format "IDLE")
+                            'face '(:foreground "DarkGoldenrod")
+                            'help-echo "tomato clock is clocking")
+              (propertize (format "♚ %0.1f"  (/ (float-time (time-subtract (current-time) carlos/tomato-start-time)) 60.0))
+                          'face '(:foreground "DarkGoldenrod")
+                          'help-echo "tomato clock is clocking")
+              )
+          (if (and (equal carlos/tomato-start-time nil) (equal carlos/tomato-idle-start-time nil))
+              (propertize (format "IDLE")
+                          'face '(:foreground "DarkGoldenrod")
+                          'help-echo "tomato clock is clocking")
+          (propertize (format "☽ %0.1f/%d" (/  (float-time (time-subtract (current-time) carlos/tomato-idle-start-time)) 60.0) (/ carlos/tomato-idle-long 60.0))
+                      'face '(:foreground "gray")
+                      'help-echo "tomato clock is stoped"))))
+    (progn
+      (if (and (equal carlos/tomato-start-time nil) (equal carlos/tomato-idle-start-time nil))
+          (propertize (format "IDLE")
+                      'face '(:foreground "DarkGoldenrod")
+                      'help-echo "tomato clock is clocking")
+          (propertize (format "♚ %0.1f"  (/ (float-time (time-subtract (current-time) carlos/tomato-start-time)) 60.0))
+                      'face '(:foreground "DarkGoldenrod")
+                      'help-echo "tomato clock is clocking")))))
+
 ;; ---------------------------------------------------------------------
 (defun vc-branch ()
   (if vc-mode
@@ -246,12 +277,15 @@
     (let ((buffer-name (format-mode-line "%b"))
           (mode-name   (format-mode-line "%m"))
           (branch      (vc-branch))
+          (tomato-clock-sum (carlos/mode-line-tomato-clock-mode))
           (position    (format-mode-line "%l:%c")))
       (nano-modeline-compose (nano-modeline-status)
                              buffer-name 
                              (concat "(" mode-name
-                                     (if branch (concat ", "
-                                             (propertize branch 'face 'italic)))
+                                     " "
+                                     position
+                                     " "
+                                     tomato-clock-sum
                                      ")" )
                              org-mode-line-string)))
 
@@ -329,19 +363,20 @@
   (interactive)
   (setq-default header-line-format
   '((:eval
-     (cond ((nano-modeline-elfeed-search-mode-p)   (nano-modeline-elfeed-search-mode))
-           ((nano-modeline-elfeed-show-mode-p)     (nano-modeline-elfeed-show-mode))
-           ((nano-modeline-calendar-mode-p)        (nano-modeline-calendar-mode))
-           ((nano-modeline-org-capture-mode-p)     (nano-modeline-org-capture-mode))
-           ((nano-modeline-org-agenda-mode-p)      (nano-modeline-org-agenda-mode))
-           ((nano-modeline-org-clock-mode-p)       (nano-modeline-org-clock-mode))
-           ((nano-modeline-term-mode-p)            (nano-modeline-term-mode))
-           ((nano-modeline-mu4e-dashboard-mode-p)  (nano-modeline-mu4e-dashboard-mode))
-           ((nano-modeline-mu4e-main-mode-p)       (nano-modeline-mu4e-main-mode))
-           ((nano-modeline-mu4e-headers-mode-p)    (nano-modeline-mu4e-headers-mode))
-           ((nano-modeline-pdf-view-mode-p)        (nano-modeline-pdf-view-mode))
-;;           ((nano-modeline-mu4e-view-mode-p)       (nano-modeline-mu4e-view-mode))
-           (t                                      (nano-modeline-default-mode)))))))
+     (cond
+      ((nano-modeline-org-capture-mode-p)     (nano-modeline-org-capture-mode))
+      ((nano-modeline-org-clock-mode-p)       (nano-modeline-org-clock-mode))
+      ((nano-modeline-elfeed-search-mode-p)   (nano-modeline-elfeed-search-mode))
+      ((nano-modeline-elfeed-show-mode-p)     (nano-modeline-elfeed-show-mode))
+      ((nano-modeline-org-agenda-mode-p)      (nano-modeline-org-agenda-mode))
+      ((nano-modeline-calendar-mode-p)        (nano-modeline-calendar-mode))
+      ((nano-modeline-term-mode-p)            (nano-modeline-term-mode))
+      ((nano-modeline-mu4e-dashboard-mode-p)  (nano-modeline-mu4e-dashboard-mode))
+      ((nano-modeline-mu4e-main-mode-p)       (nano-modeline-mu4e-main-mode))
+      ((nano-modeline-mu4e-headers-mode-p)    (nano-modeline-mu4e-headers-mode))
+      ((nano-modeline-pdf-view-mode-p)        (nano-modeline-pdf-view-mode))
+      ;;           ((nano-modeline-mu4e-view-mode-p)       (nano-modeline-mu4e-view-mode))
+      (t                                      (nano-modeline-default-mode)))))))
 
 ;; ---------------------------------------------------------------------
 (defun nano-modeline-update-windows ()
