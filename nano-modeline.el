@@ -393,7 +393,7 @@
   '((:eval
      (cond
       ((nano-modeline-org-capture-mode-p)     (nano-modeline-org-capture-mode))
-      ((nano-modeline-org-clock-mode-p)       (nano-modeline-org-clock-mode))
+      (t       (nano-modeline-org-clock-mode))
       ((nano-modeline-elfeed-search-mode-p)   (nano-modeline-elfeed-search-mode))
       ((nano-modeline-elfeed-show-mode-p)     (nano-modeline-elfeed-show-mode))
       ((nano-modeline-org-agenda-mode-p)      (nano-modeline-org-agenda-mode))
